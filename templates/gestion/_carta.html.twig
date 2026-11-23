@@ -1,0 +1,13 @@
+<div class="card front">
+    <img src="{{ pokemon.imagenUrl }}" alt="{{ pokemon.nombre }}" loading="lazy">
+    <h3>{{ pokemon.nombre }}</h3>
+    <div>
+        {% for tipo in pokemon.tipos %}<span class="tipo">{{ tipo.nombre }}</span>{% endfor %}
+    </div>
+    <ul class="stats">
+        <li><span>HP</span><strong>{{ pokemon.hp }}</strong></li>
+        <li><span>Ataque</span><strong>{{ pokemon.ataque }}</strong></li>
+        <li><span>Defensa</span><strong>{{ pokemon.defensa }}</strong></li>
+        <li><span>Velocidad</span><strong>{{ pokemon.velocidad }}</strong></li>
+    </ul>
+</div>

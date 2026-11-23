@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Jugar{% endblock %}
+
+{% block body %}
+    {% if ronda is null %}
+        <div class="panel">
+            <h1>Aún no hay Pokémon</h1>
+            <p>La base de datos no tiene suficientes Pokémon. Ejecuta en la terminal:</p>
+            <p><code>php bin/console app:cargar-pokemon</code></p>
+            <p>y recarga la página.</p>
+        </div>
+
+    {% elseif ronda.pokemonElegido is null %}
+        <h1 class="centro">Elige una carta</h1>
+        <p class="centro gris">Tienes tres cartas boca abajo. No sabes qué Pokémon es cada una.</p>
+        <div class="cards">
+            {% for carta in ronda.cartas %}
+                <form method="post" action="{{ path('app_juego_elegir', {posicion: carta.posicion}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('elegir' ~ carta.posicion) }}">
+                    <button type="submit" class="card-btn" aria-label="Elegir la carta {{ carta.posicion }}">
+                        <div class="card back"><span>?</span><small>Carta {{ carta.posicion }}</small></div>
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <h1 class="centro">Has elegido a {{ ronda.pokemonElegido.nombre }}</h1>
+        <div class="cards">
+            {% for carta in ronda.cartas %}
+                {% if carta.elegida %}
+                    {% include 'gestion/_carta.html.twig' with {pokemon: carta.pokemon} %}
+                {% else %}
+                    <div class="card back dim"><span>?</span></div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <form method="post" action="{{ path('app_juego_combatir') }}" class="centro">
+            <input type="hidden" name="_token" value="{{ csrf_token('combatir') }}">
+            <button type="submit" class="btn big">⚔ Combatir contra un rival aleatorio</button>
+        </form>
+    {% endif %}
+{% endblock %}

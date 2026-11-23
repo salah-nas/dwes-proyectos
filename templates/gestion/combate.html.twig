@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Resultado del combate{% endblock %}
+
+{% block body %}
+    <div class="banner {{ combate.resultado }}">
+        {% if combate.resultado == 'victoria' %}¡Victoria!
+        {% elseif combate.resultado == 'derrota' %}Derrota
+        {% else %}Empate{% endif %}
+    </div>
+
+    <div class="cards">
+        <div class="centro">
+            <p><strong>Tu Pokémon</strong></p>
+            {% include 'gestion/_carta.html.twig' with {pokemon: combate.pokemonJugador} %}
+        </div>
+        <div class="vs">VS</div>
+        <div class="centro">
+            <p><strong>Rival aleatorio</strong></p>
+            {% include 'gestion/_carta.html.twig' with {pokemon: combate.pokemonRival} %}
+        </div>
+    </div>
+
+    <p class="centro">
+        <a class="btn" href="{{ path('app_juego') }}">Jugar otra ronda</a>
+        <a class="btn sec" href="{{ path('app_historial') }}">Ver historial</a>
+    </p>
+{% endblock %}

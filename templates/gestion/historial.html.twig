@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historial{% endblock %}
+
+{% block body %}
+    <h1>Historial de combates</h1>
+    <p class="gris">
+        Victorias: <strong>{{ resumen.victoria }}</strong> ·
+        Derrotas: <strong>{{ resumen.derrota }}</strong> ·
+        Empates: <strong>{{ resumen.empate }}</strong>
+    </p>
+
+    {% if historial is empty %}
+        <div class="panel ancho centro">
+            <p>Todavía no has combatido.</p>
+            <a class="btn" href="{{ path('app_juego') }}">Jugar ahora</a>
+        </div>
+    {% else %}
+        <table>
+            <thead>
+                <tr><th>Fecha</th><th>Tu Pokémon</th><th>Rival</th><th>Resultado</th></tr>
+            </thead>
+            <tbody>
+                {% for combate in historial %}
+                    <tr>
+                        <td>{{ combate.fecha|date('d/m/Y H:i') }}</td>
+                        <td>{{ combate.pokemonJugador.nombre }}</td>
+                        <td>{{ combate.pokemonRival.nombre }}</td>
+                        <td>{{ combate.resultado|capitalize }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

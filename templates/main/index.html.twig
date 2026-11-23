@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="panel centro">
+        <h1>Cartas Pokémon</h1>
+        <p>Inicia sesión y recibirás <strong>tres cartas boca abajo</strong>. No sabrás qué Pokémon es cada una: elige una y ponla a combatir contra un rival aleatorio de cualquier tipo.</p>
+        <a class="btn" href="{{ path('app_login') }}">Iniciar sesión</a>
+        <a class="btn sec" href="{{ path('app_registro') }}">Crear cuenta</a>
+    </div>
+{% endblock %}
