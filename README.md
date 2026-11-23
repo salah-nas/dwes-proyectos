@@ -33,7 +33,7 @@ php bin/console doctrine:migrations:migrate
 ```
 
 ### Usar MySQL / MariaDB
-Edita `DATABASE_URL` en `.env` (hay un ejemplo comentado) y ejecuta antes
+Crea un `.env.local` con tu `DATABASE_URL` (hay un ejemplo comentado en `.env`) y ejecuta antes
 `php bin/console doctrine:database:create`.
 
 ## Estructura
