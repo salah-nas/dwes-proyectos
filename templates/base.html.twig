@@ -143,6 +143,20 @@
             .reverso-pokeball:after{width:24px;height:24px}
         }
 
+
+        .cartas-pack[hidden]{display:none}
+        .cartas-pack.barajando .carta-pack{animation:mezclarCartas .95s cubic-bezier(.2,.8,.2,1) both}
+        .cartas-pack .carta-form button:disabled{cursor:wait}
+        .cartas-pack .carta-form button:disabled:hover{transform:none;filter:none}
+        .btn-pack:disabled{opacity:.75;cursor:wait;transform:none}
+        @keyframes mezclarCartas{
+            0%{transform:translateY(0) rotate(0) scale(1)}
+            22%{transform:translateY(-28px) rotate(5deg) scale(1.025)}
+            48%{transform:translateY(8px) rotate(-6deg) scale(.98)}
+            72%{transform:translateY(-12px) rotate(3deg) scale(1.01)}
+            100%{transform:translateY(0) rotate(0) scale(1)}
+        }
+
     </style>
 </head>
 <body>

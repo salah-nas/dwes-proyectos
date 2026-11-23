@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Abrir sobre · Cartas Pokémon{% endblock %}
+{% block title %}Elegir carta · Cartas Pokémon{% endblock %}
 
 {% block body %}
 <section class="pantalla-juego">
@@ -11,19 +11,19 @@
             <p>No se han podido preparar tres cartas. Comprueba que el catálogo de Pokémon esté cargado.</p>
         </div>
     {% elseif ronda.pokemonElegido is null %}
-        <h1>Elige tu carta</h1>
-        <p class="juego-subtitulo">Tienes tres cartas misteriosas. Elige una para descubrir qué Pokémon te acompañará en el combate.</p>
+        <h1>¡Prepárate para elegir!</h1>
+        <p class="juego-subtitulo" id="instruccion-cartas">Pulsa empezar para barajar las tres cartas. Después podrás elegir la que quieras.</p>
 
         <div class="pack-actions">
-            <span class="btn-pack" aria-label="Sobre de cartas Pokémon">Abrir sobre</span>
+            <button class="btn-pack" id="empezar-barajar" type="button">Empezar</button>
         </div>
 
-        <div class="cartas-pack">
+        <div class="cartas-pack" id="zona-cartas" hidden>
             {% for carta in ronda.cartas|sort((a, b) => a.posicion <=> b.posicion) %}
                 <article class="carta-pack">
                     <form class="carta-form" method="post" action="{{ path('app_juego_elegir', {posicion: carta.posicion}) }}">
                         <input type="hidden" name="_token" value="{{ csrf_token('elegir' ~ carta.posicion) }}">
-                        <button type="submit" aria-label="Elegir carta {{ carta.posicion }}">
+                        <button type="submit" disabled aria-label="Elegir carta {{ carta.posicion }}">
                             <div class="carta-interior">
                                 <span class="carta-numero">CARD {{ '%02d'|format(carta.posicion) }}</span>
                                 <div class="reverso-pokeball"></div>
@@ -34,7 +34,57 @@
                 </article>
             {% endfor %}
         </div>
-        <p class="juego-ayuda">Pulsa una carta para revelarla. Tu elección será la que utilices en el combate.</p>
+        <p class="juego-ayuda" id="ayuda-cartas">Las cartas aparecerán aquí cuando pulses Empezar.</p>
+
+        <script>
+            (() => {
+                const startButton = document.getElementById('empezar-barajar');
+                const cardZone = document.getElementById('zona-cartas');
+                const instruction = document.getElementById('instruccion-cartas');
+                const help = document.getElementById('ayuda-cartas');
+
+                if (!startButton || !cardZone) return;
+
+                startButton.addEventListener('click', () => {
+                    if (startButton.disabled) return;
+
+                    startButton.disabled = true;
+                    startButton.textContent = 'Barajando...';
+                    cardZone.hidden = false;
+
+                    // Reordena las cartas de forma aleatoria sin cambiar su posición
+                    // asociada en el formulario ni la validación del servidor.
+                    const cards = Array.from(cardZone.children);
+                    for (let i = cards.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [cards[i], cards[j]] = [cards[j], cards[i]];
+                    }
+                    cards.forEach((card, index) => {
+                        cardZone.appendChild(card);
+                        card.style.animationDelay = (index * 90) + 'ms';
+                        const button = card.querySelector('button[type="submit"]');
+                        if (button) button.disabled = true;
+                    });
+
+                    cardZone.classList.remove('barajando');
+                    void cardZone.offsetWidth;
+                    cardZone.classList.add('barajando');
+
+                    instruction.textContent = '¡Cartas barajadas! Elige una para descubrir tu Pokémon.';
+                    help.textContent = 'Selecciona una de las tres cartas. Tu elección será la que utilices en el combate.';
+
+                    window.setTimeout(() => {
+                        cardZone.classList.remove('barajando');
+                        cards.forEach(card => {
+                            card.style.animationDelay = '';
+                            const button = card.querySelector('button[type="submit"]');
+                            if (button) button.disabled = false;
+                        });
+                        startButton.textContent = '¡Cartas listas!';
+                    }, 1150);
+                });
+            })();
+        </script>
     {% else %}
         {% set elegido = ronda.pokemonElegido %}
         <h1>¡Carta revelada!</h1>
