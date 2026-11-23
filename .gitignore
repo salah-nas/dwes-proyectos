@@ -8,6 +8,8 @@
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
