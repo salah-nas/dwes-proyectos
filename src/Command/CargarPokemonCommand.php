@@ -76,14 +76,21 @@ class CargarPokemonCommand extends Command
         /** @var array<string, Tipo> $tipos */
         $tipos = [];
         $nuevos = 0;
+        $actualizados = 0;
 
         foreach (self::POKEMON as [$dex, $nombre, $nombresTipos, $hp, $ataque, $defensa, $velocidad]) {
-            if (null !== $pokemonRepo->findOneBy(['nombre' => $nombre])) {
+            $existente = $pokemonRepo->findOneBy(['nombre' => $nombre]);
+            if (null !== $existente) {
+                if (null === $existente->getNumeroPokedex()) {
+                    $existente->setNumeroPokedex($dex);
+                    ++$actualizados;
+                }
                 continue;
             }
 
             $pokemon = (new Pokemon())
                 ->setNombre($nombre)
+                ->setNumeroPokedex($dex)
                 ->setImagenUrl(sprintf(self::IMAGEN, $dex))
                 ->setHp($hp)
                 ->setAtaque($ataque)
@@ -108,7 +115,7 @@ class CargarPokemonCommand extends Command
 
         $this->em->flush();
 
-        $io->success(sprintf('%d Pokémon nuevos cargados (%d tipos en esta ejecución).', $nuevos, count($tipos)));
+        $io->success(sprintf('%d Pokémon nuevos cargados y %d actualizados con su número de Pokédex.', $nuevos, $actualizados));
 
         return Command::SUCCESS;
     }

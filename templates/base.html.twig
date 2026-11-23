@@ -48,8 +48,101 @@
         table { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; }
         th, td { padding:.6rem .8rem; text-align:left; border-bottom:1px solid var(--borde); }
         th { background:#eef0f4; }
+        .pokedex .card { width:180px; min-height:250px; padding:.8rem; }
+        .pokedex .card.front img { width:110px; height:110px; }
+        .pokedex .card .num { font-size:.8rem; color:var(--gris); }
+        .card.pendiente { background:#eceef2; border:2px dashed var(--borde); box-shadow:none; }
+        .card.pendiente img { filter:brightness(0); opacity:.3; }
+        .progreso { background:#dfe2e8; border-radius:999px; height:14px; overflow:hidden; margin:.4rem 0 1rem; }
+        .progreso > div { background:var(--rojo); height:100%; }
+        .filtros { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem; }
+        .filtros a { padding:.35rem .9rem; border-radius:999px; border:1px solid var(--azul); color:var(--azul); text-decoration:none; font-size:.9rem; }
+        .filtros a.activo { background:var(--azul); color:#fff; }
         .centro { text-align:center; }
         .gris { color:var(--gris); }
+
+        /* --- Experiencia de apertura de cartas --- */
+        body{
+            background:#202020;
+            color:#f5f5f5;
+            font-family:Arial,Helvetica,sans-serif;
+        }
+        nav{
+            background:#202020;
+            border-bottom:1px solid #333;
+            padding:.7rem clamp(1rem,4vw,3rem);
+        }
+        nav .marca{color:#fff}
+        nav a{color:#e8e8e8}
+        nav a:hover{color:#ffd52a}
+        main{max-width:1180px;padding:2.3rem 1.2rem 4rem}
+        h1,h2,h3{color:#fff}
+        .pantalla-juego{min-height:calc(100vh - 150px);text-align:center;padding:1rem 0 3rem}
+        .juego-eyebrow{color:#aaa;font-size:.78rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;margin:0 0 .6rem}
+        .pantalla-juego h1{font-size:clamp(1.8rem,4vw,2.65rem);margin:.25rem 0 .6rem;color:#fff}
+        .juego-subtitulo{color:#b8b8b8;margin:0 auto;max-width:600px}
+        .pack-actions{margin:1.5rem auto 2rem}
+        .btn-pack{
+            display:inline-flex;align-items:center;justify-content:center;min-width:190px;
+            padding:.78rem 1.65rem;border:0;border-radius:7px;color:#fff;text-decoration:none;
+            font-size:.92rem;font-weight:700;letter-spacing:.01em;cursor:pointer;
+            background:linear-gradient(105deg,#ffc928 0%,#fa3984 48%,#00d5a5 100%);
+            box-shadow:0 5px 18px rgba(0,0,0,.22);transition:transform .2s,filter .2s,box-shadow .2s
+        }
+        .btn-pack:hover{transform:translateY(-3px);filter:saturate(1.15);box-shadow:0 9px 24px rgba(0,0,0,.35);color:#fff}
+        .cartas-pack{display:flex;justify-content:center;align-items:stretch;gap:clamp(1rem,3vw,2.2rem);flex-wrap:wrap;margin:2rem auto}
+        .carta-pack{
+            position:relative;width:clamp(190px,21vw,245px);min-height:350px;padding:7px;
+            border-radius:12px;background:linear-gradient(135deg,#ffe45b,#e9b900 45%,#fff078);
+            box-shadow:0 10px 28px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.15);
+            transition:transform .22s ease,box-shadow .22s ease;animation:cartaEntrada .55s both
+        }
+        .carta-pack:nth-child(2){animation-delay:.09s}.carta-pack:nth-child(3){animation-delay:.18s}
+        .carta-pack:hover{transform:translateY(-8px) rotate(-.5deg);box-shadow:0 18px 35px rgba(0,0,0,.48),0 0 20px rgba(255,211,35,.12)}
+        .carta-interior{
+            min-height:336px;height:100%;border-radius:7px;overflow:hidden;position:relative;
+            background:linear-gradient(160deg,#164e9d,#0b2857 72%,#081b3d);
+            border:2px solid rgba(255,255,255,.58);display:flex;flex-direction:column;
+            align-items:center;justify-content:center;color:#fff
+        }
+        .carta-interior:before,.carta-interior:after{content:"";position:absolute;pointer-events:none;border:1px solid rgba(255,255,255,.15);border-radius:50%}
+        .carta-interior:before{width:210px;height:210px}
+        .carta-interior:after{width:165px;height:165px}
+        .reverso-pokeball{
+            width:112px;height:112px;border:8px solid rgba(255,255,255,.9);border-radius:50%;
+            position:relative;z-index:1;background:linear-gradient(to bottom,#e53b43 0 47%,#f8f8f8 48% 100%);
+            box-shadow:0 8px 22px rgba(0,0,0,.25),inset 0 0 0 2px rgba(0,0,0,.12)
+        }
+        .reverso-pokeball:before{content:"";position:absolute;left:-8px;right:-8px;top:43%;height:9px;background:#fff;border-top:4px solid #18345d;border-bottom:4px solid #18345d}
+        .reverso-pokeball:after{content:"";position:absolute;width:28px;height:28px;border:6px solid #17345f;background:#fff;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
+        .reverso-titulo{z-index:1;margin-top:1.3rem;font-size:.8rem;letter-spacing:.22em;font-weight:800;color:#eaf2ff}
+        .carta-numero{position:absolute;top:12px;left:13px;z-index:2;font-size:.72rem;font-weight:800;color:#fff;opacity:.85}
+        .carta-form{height:100%;margin:0}
+        .carta-form button{width:100%;height:100%;padding:0;border:0;background:none;color:inherit;cursor:pointer}
+        .carta-form button:focus-visible{outline:4px solid #fff;outline-offset:5px;border-radius:8px}
+        .carta-elegida{max-width:290px;margin:2rem auto}
+        .carta-elegida .carta-pack{width:100%;min-height:400px}
+        .pokemon-imagen{width:145px;height:145px;object-fit:contain;filter:drop-shadow(0 8px 7px rgba(0,0,0,.25));margin:.4rem auto}
+        .pokemon-nombre{color:#15233a!important;background:linear-gradient(90deg,#f8e18a,#fff4bd);width:100%;padding:.35rem .5rem;margin:.4rem 0 .15rem;font-size:1.08rem}
+        .pokemon-tipos{margin:.3rem 0 .6rem}
+        .pokemon-tipos .tipo{background:#1e477e;color:#fff;border:1px solid rgba(255,255,255,.25)}
+        .pokemon-datos{width:90%;margin:.4rem auto 0;padding:.6rem;background:rgba(255,255,255,.92);color:#18233a;border-radius:5px;font-size:.82rem}
+        .pokemon-datos p{margin:.18rem 0;display:flex;justify-content:space-between;border-bottom:1px solid #e2e5eb;padding:.15rem 0}
+        .juego-ayuda{color:#999;font-size:.9rem;margin:1.4rem auto}
+        .juego-mensaje{max-width:560px;margin:2rem auto;padding:1.1rem 1.4rem;border:1px solid #414141;border-radius:12px;background:#292929;color:#ddd}
+        .juego-mensaje strong{color:#fff}
+        .btn-combatir{margin-top:1.4rem}
+        .flash-error{color:#ffb4ae}
+        @keyframes cartaEntrada{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+        @media(max-width:650px){
+            main{padding-top:1.2rem}
+            .cartas-pack{gap:1rem}
+            .carta-pack{width:min(42vw,210px);min-height:300px}
+            .carta-interior{min-height:286px}
+            .reverso-pokeball{width:86px;height:86px}
+            .reverso-pokeball:after{width:24px;height:24px}
+        }
+
     </style>
 </head>
 <body>
@@ -57,6 +150,7 @@
     <a class="marca" href="{{ path('app_main') }}">⚡ Cartas Pokémon</a>
     {% if app.user %}
         <a href="{{ path('app_juego') }}">Jugar</a>
+        <a href="{{ path('app_pokedex') }}">Pokédex</a>
         <a href="{{ path('app_historial') }}">Historial</a>
         <span>{{ app.user.nombreUsuario }}</span>
         <a href="{{ path('app_logout') }}">Salir</a>

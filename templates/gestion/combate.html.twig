@@ -21,8 +21,25 @@
         </div>
     </div>
 
+    {% if combate.resultado == 'victoria' %}
+        {% if captura %}
+            <div class="alert success centro">
+                ¡Has capturado a <strong>{{ combate.pokemonRival.nombre }}</strong>! Ya está en tu
+                <a href="{{ path('app_pokedex') }}">Pokédex</a>.
+            </div>
+        {% else %}
+            <div class="alert centro" style="background:#fff6db;border:1px solid #f0dc9a;color:#7a5a00">
+                Ya tenías a <strong>{{ combate.pokemonRival.nombre }}</strong> en tu
+                <a href="{{ path('app_pokedex') }}">Pokédex</a>.
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="centro gris">Solo capturas al rival si ganas el combate.</p>
+    {% endif %}
+
     <p class="centro">
         <a class="btn" href="{{ path('app_juego') }}">Jugar otra ronda</a>
+        <a class="btn sec" href="{{ path('app_pokedex') }}">Mi Pokédex</a>
         <a class="btn sec" href="{{ path('app_historial') }}">Ver historial</a>
     </p>
 {% endblock %}

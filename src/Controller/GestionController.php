@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\CartaOfrecida;
+use App\Entity\Captura;
 use App\Entity\Combate;
 use App\Entity\RondaEleccion;
 use App\Entity\Usuario;
+use App\Repository\CapturaRepository;
 use App\Repository\CombateRepository;
 use App\Repository\PokemonRepository;
 use App\Repository\RondaEleccionRepository;
@@ -95,6 +97,7 @@ class GestionController extends AbstractController
         Request $request,
         RondaEleccionRepository $rondas,
         PokemonRepository $pokemons,
+        CapturaRepository $capturas,
         CombateService $combateService,
         EntityManagerInterface $em,
     ): Response {
@@ -126,13 +129,24 @@ class GestionController extends AbstractController
             ->setResultado($combateService->resolver($elegido, $rival));
 
         $em->persist($combate);
+
+        // Si ganas, capturas al rival (solo una vez por Pokémon) y entra en tu Pokédex.
+        if (Combate::VICTORIA === $combate->getResultado() && !$capturas->existe($usuario, $rival)) {
+            $em->persist(
+                (new Captura())
+                    ->setUsuario($usuario)
+                    ->setPokemon($rival)
+                    ->setCombate($combate)
+            );
+        }
+
         $em->flush();
 
         return $this->redirectToRoute('app_combate', ['id' => $combate->getId()]);
     }
 
     #[Route('/juego/combate/{id}', name: 'app_combate', requirements: ['id' => '\d+'])]
-    public function combate(int $id, CombateRepository $combates): Response
+    public function combate(int $id, CombateRepository $combates, CapturaRepository $capturas): Response
     {
         $combate = $combates->find($id);
 
@@ -140,7 +154,10 @@ class GestionController extends AbstractController
             throw $this->createNotFoundException('Combate no encontrado.');
         }
 
-        return $this->render('gestion/combate.html.twig', ['combate' => $combate]);
+        return $this->render('gestion/combate.html.twig', [
+            'combate' => $combate,
+            'captura' => $capturas->findOneBy(['combate' => $combate]),
+        ]);
     }
 
     #[Route('/historial', name: 'app_historial')]

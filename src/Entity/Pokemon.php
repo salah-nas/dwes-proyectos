@@ -19,6 +19,10 @@ class Pokemon
     #[ORM\Column(length: 60, unique: true)]
     private ?string $nombre = null;
 
+    /** Número en la Pokédex nacional (para ordenarlos). */
+    #[ORM\Column(nullable: true)]
+    private ?int $numeroPokedex = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imagenUrl = null;
 
@@ -63,6 +67,18 @@ class Pokemon
     public function setNombre(string $nombre): static
     {
         $this->nombre = $nombre;
+
+        return $this;
+    }
+
+    public function getNumeroPokedex(): ?int
+    {
+        return $this->numeroPokedex;
+    }
+
+    public function setNumeroPokedex(?int $numeroPokedex): static
+    {
+        $this->numeroPokedex = $numeroPokedex;
 
         return $this;
     }

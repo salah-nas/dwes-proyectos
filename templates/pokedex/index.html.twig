@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pokédex{% endblock %}
+
+{% block body %}
+    <h1>Mi Pokédex</h1>
+    <p class="gris">Gana combates para capturar a tus rivales. Llevas <strong>{{ capturados }}</strong> de <strong>{{ total }}</strong> ({{ porcentaje }} %).</p>
+    <div class="progreso" role="progressbar" aria-valuenow="{{ porcentaje }}" aria-valuemin="0" aria-valuemax="100">
+        <div style="width: {{ porcentaje }}%"></div>
+    </div>
+
+    <div class="filtros">
+        <a href="{{ path('app_pokedex') }}" class="{{ filtro == 'todos' ? 'activo' : '' }}">Todos</a>
+        <a href="{{ path('app_pokedex', {filtro: 'capturados'}) }}" class="{{ filtro == 'capturados' ? 'activo' : '' }}">Capturados</a>
+        <a href="{{ path('app_pokedex', {filtro: 'pendientes'}) }}" class="{{ filtro == 'pendientes' ? 'activo' : '' }}">Por capturar</a>
+    </div>
+
+    {% if entradas is empty %}
+        <div class="panel ancho centro">
+            <p>No hay nada que mostrar con este filtro.</p>
+            <a class="btn" href="{{ path('app_juego') }}">Ir a combatir</a>
+        </div>
+    {% else %}
+        <div class="cards pokedex">
+            {% for e in entradas %}
+                {% set p = e.pokemon %}
+                {% if e.captura %}
+                    <div class="card front">
+                        <div class="num">{% if p.numeroPokedex %}#{{ '%03d'|format(p.numeroPokedex) }}{% else %}#---{% endif %}</div>
+                        <img src="{{ p.imagenUrl }}" alt="{{ p.nombre }}" loading="lazy">
+                        <h3>{{ p.nombre }}</h3>
+                        <div>{% for tipo in p.tipos %}<span class="tipo">{{ tipo.nombre }}</span>{% endfor %}</div>
+                        <ul class="stats">
+                            <li><span>HP</span><strong>{{ p.hp }}</strong></li>
+                            <li><span>Ataque</span><strong>{{ p.ataque }}</strong></li>
+                        </ul>
+                        <small class="gris">Capturado el {{ e.captura.fecha|date('d/m/Y') }}</small>
+                    </div>
+                {% else %}
+                    <div class="card front pendiente">
+                        <div class="num">{% if p.numeroPokedex %}#{{ '%03d'|format(p.numeroPokedex) }}{% else %}#---{% endif %}</div>
+                        <img src="{{ p.imagenUrl }}" alt="Pokémon sin capturar" loading="lazy">
+                        <h3>???</h3>
+                        <small class="gris">Véncelo en combate para capturarlo</small>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

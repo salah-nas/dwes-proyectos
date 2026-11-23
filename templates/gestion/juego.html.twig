@@ -1,44 +1,71 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Jugar{% endblock %}
+{% block title %}Abrir sobre · Cartas Pokémon{% endblock %}
 
 {% block body %}
+<section class="pantalla-juego">
+    <p class="juego-eyebrow">Pokémon Trading Cards</p>
     {% if ronda is null %}
-        <div class="panel">
-            <h1>Aún no hay Pokémon</h1>
-            <p>La base de datos no tiene suficientes Pokémon. Ejecuta en la terminal:</p>
-            <p><code>php bin/console app:cargar-pokemon</code></p>
-            <p>y recarga la página.</p>
+        <h1>No hay cartas disponibles</h1>
+        <div class="juego-mensaje">
+            <p>No se han podido preparar tres cartas. Comprueba que el catálogo de Pokémon esté cargado.</p>
         </div>
-
     {% elseif ronda.pokemonElegido is null %}
-        <h1 class="centro">Elige una carta</h1>
-        <p class="centro gris">Tienes tres cartas boca abajo. No sabes qué Pokémon es cada una.</p>
-        <div class="cards">
-            {% for carta in ronda.cartas %}
-                <form method="post" action="{{ path('app_juego_elegir', {posicion: carta.posicion}) }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('elegir' ~ carta.posicion) }}">
-                    <button type="submit" class="card-btn" aria-label="Elegir la carta {{ carta.posicion }}">
-                        <div class="card back"><span>?</span><small>Carta {{ carta.posicion }}</small></div>
-                    </button>
-                </form>
-            {% endfor %}
+        <h1>Elige tu carta</h1>
+        <p class="juego-subtitulo">Tienes tres cartas misteriosas. Elige una para descubrir qué Pokémon te acompañará en el combate.</p>
+
+        <div class="pack-actions">
+            <span class="btn-pack" aria-label="Sobre de cartas Pokémon">Abrir sobre</span>
         </div>
 
-    {% else %}
-        <h1 class="centro">Has elegido a {{ ronda.pokemonElegido.nombre }}</h1>
-        <div class="cards">
-            {% for carta in ronda.cartas %}
-                {% if carta.elegida %}
-                    {% include 'gestion/_carta.html.twig' with {pokemon: carta.pokemon} %}
-                {% else %}
-                    <div class="card back dim"><span>?</span></div>
-                {% endif %}
+        <div class="cartas-pack">
+            {% for carta in ronda.cartas|sort((a, b) => a.posicion <=> b.posicion) %}
+                <article class="carta-pack">
+                    <form class="carta-form" method="post" action="{{ path('app_juego_elegir', {posicion: carta.posicion}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('elegir' ~ carta.posicion) }}">
+                        <button type="submit" aria-label="Elegir carta {{ carta.posicion }}">
+                            <div class="carta-interior">
+                                <span class="carta-numero">CARD {{ '%02d'|format(carta.posicion) }}</span>
+                                <div class="reverso-pokeball"></div>
+                                <span class="reverso-titulo">POKÉMON</span>
+                            </div>
+                        </button>
+                    </form>
+                </article>
             {% endfor %}
         </div>
-        <form method="post" action="{{ path('app_juego_combatir') }}" class="centro">
-            <input type="hidden" name="_token" value="{{ csrf_token('combatir') }}">
-            <button type="submit" class="btn big">⚔ Combatir contra un rival aleatorio</button>
-        </form>
+        <p class="juego-ayuda">Pulsa una carta para revelarla. Tu elección será la que utilices en el combate.</p>
+    {% else %}
+        {% set elegido = ronda.pokemonElegido %}
+        <h1>¡Carta revelada!</h1>
+        <p class="juego-subtitulo">Este es tu Pokémon para el próximo combate.</p>
+
+        <div class="carta-elegida">
+            <article class="carta-pack">
+                <div class="carta-interior" style="background:linear-gradient(160deg,#e9f1fb,#b8cde9);color:#15233a">
+                    <span class="carta-numero" style="color:#263b5a">TU CARTA</span>
+                    <h2 class="pokemon-nombre">{{ elegido.nombre }}</h2>
+                    <img class="pokemon-imagen" src="{{ elegido.imagenUrl }}" alt="{{ elegido.nombre }}">
+                    <div class="pokemon-tipos">
+                        {% for tipo in elegido.tipos %}
+                            <span class="tipo">{{ tipo.nombre }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="pokemon-datos">
+                        <p><span>HP</span><strong>{{ elegido.hp }}</strong></p>
+                        <p><span>Ataque</span><strong>{{ elegido.ataque }}</strong></p>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div class="pack-actions">
+            <form method="post" action="{{ path('app_juego_combatir') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('combatir') }}">
+                <button class="btn-pack btn-combatir" type="submit">¡Ir al combate!</button>
+            </form>
+        </div>
+        <p class="juego-ayuda">Tu Pokémon ya está preparado. ¡Veamos quién gana!</p>
     {% endif %}
+</section>
 {% endblock %}
