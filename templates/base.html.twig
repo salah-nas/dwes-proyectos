@@ -145,16 +145,47 @@
 
 
         .cartas-pack[hidden]{display:none}
-        .cartas-pack.barajando .carta-pack{animation:mezclarCartas .95s cubic-bezier(.2,.8,.2,1) both}
+        .cartas-pack{isolation:isolate;perspective:1100px}
+        .cartas-pack .carta-pack{
+            z-index:1;transform-origin:center center;
+            transition:transform .24s cubic-bezier(.2,.8,.2,1),filter .24s,opacity .24s,box-shadow .24s;
+            will-change:transform;
+        }
+        /* Al enfocar una carta, las demás bajan visualmente para destacar la activa. */
+        .cartas-pack:has(.carta-pack:hover) .carta-pack:not(:hover),
+        .cartas-pack:has(.carta-pack:focus-within) .carta-pack:not(:focus-within){
+            transform:scale(.94);filter:brightness(.58) saturate(.72);opacity:.72
+        }
+        .cartas-pack .carta-pack:hover,
+        .cartas-pack .carta-pack:focus-within{
+            z-index:5;transform:translateY(-14px) scale(1.09) rotate(0deg);
+            filter:brightness(1.12) saturate(1.15);
+            box-shadow:0 24px 45px rgba(0,0,0,.62),0 0 0 2px rgba(255,226,91,.55),0 0 28px rgba(255,207,44,.22)
+        }
         .cartas-pack .carta-form button:disabled{cursor:wait}
         .cartas-pack .carta-form button:disabled:hover{transform:none;filter:none}
         .btn-pack:disabled{opacity:.75;cursor:wait;transform:none}
-        @keyframes mezclarCartas{
-            0%{transform:translateY(0) rotate(0) scale(1)}
-            22%{transform:translateY(-28px) rotate(5deg) scale(1.025)}
-            48%{transform:translateY(8px) rotate(-6deg) scale(.98)}
-            72%{transform:translateY(-12px) rotate(3deg) scale(1.01)}
-            100%{transform:translateY(0) rotate(0) scale(1)}
+        .cartas-pack.barajando .carta-pack{
+            animation:barajarReal 1.25s cubic-bezier(.25,.75,.25,1) both;
+            animation-delay:var(--shuffle-delay,0ms)
+        }
+        .cartas-pack.barajando .carta-pack:hover{transform:none;filter:none}
+        @keyframes barajarReal{
+            0%{transform:translateX(0) translateY(0) rotate(0) scale(1)}
+            16%{transform:translateX(var(--shuffle-x)) translateY(-34px) rotate(var(--shuffle-rotate)) scale(1.05)}
+            34%{transform:translateX(calc(var(--shuffle-x) * -1)) translateY(15px) rotate(calc(var(--shuffle-rotate) * -1)) scale(.97)}
+            52%{transform:translateX(var(--shuffle-x)) translateY(-20px) rotate(var(--shuffle-rotate)) scale(1.03)}
+            70%{transform:translateX(calc(var(--shuffle-x) * -.45)) translateY(8px) rotate(calc(var(--shuffle-rotate) * -.5)) scale(1)}
+            86%{transform:translateX(8px) translateY(-5px) rotate(2deg) scale(1.015)}
+            100%{transform:translateX(0) translateY(0) rotate(0) scale(1)}
+        }
+        @media(hover:none){
+            .cartas-pack:has(.carta-pack:hover) .carta-pack:not(:hover){transform:none;filter:none;opacity:1}
+            .cartas-pack .carta-pack:hover{transform:none}
+        }
+        @media(prefers-reduced-motion:reduce){
+            .cartas-pack.barajando .carta-pack{animation:none}
+            .cartas-pack .carta-pack{transition:none}
         }
 
     </style>

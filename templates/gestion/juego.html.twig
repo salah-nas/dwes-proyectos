@@ -61,7 +61,12 @@
                     }
                     cards.forEach((card, index) => {
                         cardZone.appendChild(card);
-                        card.style.animationDelay = (index * 90) + 'ms';
+                        // Las cartas cruzan visualmente sus posiciones, como un barajado real.
+                        const directions = [-115, 0, 115];
+                        const rotations = [-13, 9, -11];
+                        card.style.setProperty('--shuffle-x', directions[index] + 'px');
+                        card.style.setProperty('--shuffle-rotate', rotations[index] + 'deg');
+                        card.style.setProperty('--shuffle-delay', (index * 110) + 'ms');
                         const button = card.querySelector('button[type="submit"]');
                         if (button) button.disabled = true;
                     });
@@ -76,7 +81,9 @@
                     window.setTimeout(() => {
                         cardZone.classList.remove('barajando');
                         cards.forEach(card => {
-                            card.style.animationDelay = '';
+                            card.style.removeProperty('--shuffle-x');
+                            card.style.removeProperty('--shuffle-rotate');
+                            card.style.removeProperty('--shuffle-delay');
                             const button = card.querySelector('button[type="submit"]');
                             if (button) button.disabled = false;
                         });
