@@ -1,0 +1,56 @@
+{# Cara delantera de una carta. Variable esperada: elegido (Pokemon) #}
+                    {% set colores = {
+                        'normal':['#7b7d86','#d6d7de'], 'fuego':['#b83a12','#ffb066'], 'fire':['#b83a12','#ffb066'],
+                        'agua':['#1c55b8','#7cc4ff'], 'water':['#1c55b8','#7cc4ff'],
+                        'planta':['#1f7a34','#9be07a'], 'grass':['#1f7a34','#9be07a'],
+                        'eléctrico':['#a87c00','#ffee70'], 'electrico':['#a87c00','#ffee70'], 'electric':['#a87c00','#ffee70'],
+                        'hielo':['#2a8fa8','#bff4ff'], 'ice':['#2a8fa8','#bff4ff'],
+                        'lucha':['#8a2a18','#f0a070'], 'fighting':['#8a2a18','#f0a070'],
+                        'veneno':['#6a2a8f','#d49cf5'], 'poison':['#6a2a8f','#d49cf5'],
+                        'tierra':['#8a6420','#e8c880'], 'ground':['#8a6420','#e8c880'],
+                        'volador':['#4a5fb0','#b8c8ff'], 'flying':['#4a5fb0','#b8c8ff'],
+                        'psíquico':['#8f2a8f','#ff9ae8'], 'psiquico':['#8f2a8f','#ff9ae8'], 'psychic':['#8f2a8f','#ff9ae8'],
+                        'bicho':['#5a7a14','#d0e870'], 'bug':['#5a7a14','#d0e870'],
+                        'roca':['#6e5f3a','#d8c898'], 'rock':['#6e5f3a','#d8c898'],
+                        'fantasma':['#3e2a78','#b098f0'], 'ghost':['#3e2a78','#b098f0'],
+                        'dragón':['#2a3aa8','#a0a8ff'], 'dragon':['#2a3aa8','#a0a8ff'],
+                        'siniestro':['#2a2230','#8a7a9a'], 'dark':['#2a2230','#8a7a9a'],
+                        'acero':['#4a5a6a','#c8d6e4'], 'steel':['#4a5a6a','#c8d6e4'],
+                        'hada':['#b04a8a','#ffc0ea'], 'fairy':['#b04a8a','#ffc0ea']
+                    } %}
+                    {% set primero = elegido.tipos|first %}
+                    {% set par = primero ? (colores[primero.nombre|lower] ?? ['#4a3a8c','#b79bff']) : ['#4a3a8c','#b79bff'] %}
+                    <div class="carta-frente" style="--c1:{{ par[0] }};--c2:{{ par[1] }}">
+                        <div class="carta-arte">
+                            {% if elegido.imagenUrl %}
+                                <img src="{{ elegido.imagenUrl }}" alt="{{ elegido.nombre }}" onerror="this.parentNode.classList.add('fallo')">
+                            {% endif %}
+                            <span class="sin-imagen" aria-hidden="true">⚡</span>
+                        </div>
+
+                        <div class="carta-cabecera">
+                            <span class="carta-etapa">Básico</span>
+                            <h2 class="carta-nombre">{{ elegido.nombre }}</h2>
+                            <span class="carta-hp">PS<b>{{ elegido.hp }}</b></span>
+                            <span class="tipo-icono" title="{{ primero ? primero.nombre : '' }}">★</span>
+                        </div>
+
+                        <div class="carta-espacio"></div>
+
+                        <div class="carta-ataques">
+                            <div class="carta-ataque">
+                                <span class="energias"><i class="energia">★</i><i class="energia neutra">★</i></span>
+                                <span class="nombre">Ataque</span><b>{{ elegido.ataque }}</b>
+                            </div>
+                            <div class="carta-ataque">
+                                <span class="energias"><i class="energia">★</i><i class="energia">★</i><i class="energia neutra">★</i></span>
+                                <span class="nombre">Defensa</span><b>{{ elegido.defensa }}</b>
+                            </div>
+                        </div>
+                        <div class="carta-barra">
+                            <div>Velocidad <b>{{ elegido.velocidad }}</b></div>
+                            <div>Tipo <b>{% for tipo in elegido.tipos %}{{ tipo.nombre }}{% if not loop.last %}/{% endif %}{% endfor %}</b></div>
+                            <div>Nº <b>{{ elegido.numeroPokedex ?? '—' }}</b></div>
+                        </div>
+                        <div class="carta-pie"><span>TU CARTA</span><span>Cartas Pokémon</span></div>
+                    </div>

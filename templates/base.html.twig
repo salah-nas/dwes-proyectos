@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Cartas Pokémon{% endblock %}</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="{{ app.request.basePath }}/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --rojo:#d7382d; --azul:#2a5db0; --fondo:#f4f5f7; --texto:#1f2430; --gris:#6b7280; --borde:#d9dce3; }
         * { box-sizing: border-box; }
@@ -62,24 +65,20 @@
         .gris { color:var(--gris); }
 
         /* --- Experiencia de apertura de cartas --- */
-        body{
-            background:#202020;
-            color:#f5f5f5;
-            font-family:Arial,Helvetica,sans-serif;
-        }
-        nav{
-            background:#202020;
-            border-bottom:1px solid #333;
-            padding:.7rem clamp(1rem,4vw,3rem);
-        }
-        nav .marca{color:#fff}
+        body{background:#202020;color:#f5f5f5;font-family:Arial,Helvetica,sans-serif}
+        nav{background:#202020;border-bottom:1px solid #333;padding:.7rem clamp(1rem,4vw,3rem)}
+        nav .marca{color:#fff;display:inline-flex;align-items:center;gap:.45rem;font-weight:800;letter-spacing:-.025em}
+        nav .marca:hover{color:#fff}
+        .logo-cartas{width:34px;height:34px;flex:0 0 34px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));transition:transform .2s ease}
+        .logo-wordmark{width:clamp(178px,19vw,240px);height:auto;flex:0 0 auto;overflow:visible}
+        nav .marca:hover .logo-wordmark{transform:translateY(-1px) scale(1.025)}
         nav a{color:#e8e8e8}
         nav a:hover{color:#ffd52a}
         main{max-width:1180px;padding:2.3rem 1.2rem 4rem}
         h1,h2,h3{color:#fff}
         .pantalla-juego{min-height:calc(100vh - 150px);text-align:center;padding:1rem 0 3rem}
         .juego-eyebrow{color:#aaa;font-size:.78rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;margin:0 0 .6rem}
-        .pantalla-juego h1{font-size:clamp(1.8rem,4vw,2.65rem);margin:.25rem 0 .6rem;color:#fff}
+        .pantalla-juego h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.8rem,4vw,2.65rem);font-weight:900;letter-spacing:-.045em;margin:.25rem 0 .6rem;color:#ffdf45;text-shadow:2px 3px 0 #174b9b,-1px -1px 0 #174b9b,1px -1px 0 #174b9b,-1px 1px 0 #174b9b,1px 1px 0 #174b9b,0 7px 18px rgba(0,0,0,.55)}
         .juego-subtitulo{color:#b8b8b8;margin:0 auto;max-width:600px}
         .pack-actions{margin:1.5rem auto 2rem}
         .btn-pack{
@@ -90,119 +89,240 @@
             box-shadow:0 5px 18px rgba(0,0,0,.22);transition:transform .2s,filter .2s,box-shadow .2s
         }
         .btn-pack:hover{transform:translateY(-3px);filter:saturate(1.15);box-shadow:0 9px 24px rgba(0,0,0,.35);color:#fff}
-        .cartas-pack{display:flex;justify-content:center;align-items:stretch;gap:clamp(1rem,3vw,2.2rem);flex-wrap:wrap;margin:2rem auto}
-        .carta-pack{
-            position:relative;width:clamp(190px,21vw,245px);min-height:350px;padding:7px;
-            border-radius:12px;background:linear-gradient(135deg,#ffe45b,#e9b900 45%,#fff078);
-            box-shadow:0 10px 28px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.15);
-            transition:transform .22s ease,box-shadow .22s ease;animation:cartaEntrada .55s both
-        }
-        .carta-pack:nth-child(2){animation-delay:.09s}.carta-pack:nth-child(3){animation-delay:.18s}
-        .carta-pack:hover{transform:translateY(-8px) rotate(-.5deg);box-shadow:0 18px 35px rgba(0,0,0,.48),0 0 20px rgba(255,211,35,.12)}
-        .carta-interior{
-            min-height:336px;height:100%;border-radius:7px;overflow:hidden;position:relative;
-            background:linear-gradient(160deg,#164e9d,#0b2857 72%,#081b3d);
-            border:2px solid rgba(255,255,255,.58);display:flex;flex-direction:column;
-            align-items:center;justify-content:center;color:#fff
-        }
-        .carta-interior:before,.carta-interior:after{content:"";position:absolute;pointer-events:none;border:1px solid rgba(255,255,255,.15);border-radius:50%}
-        .carta-interior:before{width:210px;height:210px}
-        .carta-interior:after{width:165px;height:165px}
-        .reverso-pokeball{
-            width:112px;height:112px;border:8px solid rgba(255,255,255,.9);border-radius:50%;
-            position:relative;z-index:1;background:linear-gradient(to bottom,#e53b43 0 47%,#f8f8f8 48% 100%);
-            box-shadow:0 8px 22px rgba(0,0,0,.25),inset 0 0 0 2px rgba(0,0,0,.12)
-        }
-        .reverso-pokeball:before{content:"";position:absolute;left:-8px;right:-8px;top:43%;height:9px;background:#fff;border-top:4px solid #18345d;border-bottom:4px solid #18345d}
-        .reverso-pokeball:after{content:"";position:absolute;width:28px;height:28px;border:6px solid #17345f;background:#fff;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
-        .reverso-titulo{z-index:1;margin-top:1.3rem;font-size:.8rem;letter-spacing:.22em;font-weight:800;color:#eaf2ff}
-        .carta-numero{position:absolute;top:12px;left:13px;z-index:2;font-size:.72rem;font-weight:800;color:#fff;opacity:.85}
-        .carta-form{height:100%;margin:0}
-        .carta-form button{width:100%;height:100%;padding:0;border:0;background:none;color:inherit;cursor:pointer}
-        .carta-form button:focus-visible{outline:4px solid #fff;outline-offset:5px;border-radius:8px}
-        .carta-elegida{max-width:290px;margin:2rem auto}
-        .carta-elegida .carta-pack{width:100%;min-height:400px}
-        .pokemon-imagen{width:145px;height:145px;object-fit:contain;filter:drop-shadow(0 8px 7px rgba(0,0,0,.25));margin:.4rem auto}
-        .pokemon-nombre{color:#15233a!important;background:linear-gradient(90deg,#f8e18a,#fff4bd);width:100%;padding:.35rem .5rem;margin:.4rem 0 .15rem;font-size:1.08rem}
-        .pokemon-tipos{margin:.3rem 0 .6rem}
-        .pokemon-tipos .tipo{background:#1e477e;color:#fff;border:1px solid rgba(255,255,255,.25)}
-        .pokemon-datos{width:90%;margin:.4rem auto 0;padding:.6rem;background:rgba(255,255,255,.92);color:#18233a;border-radius:5px;font-size:.82rem}
-        .pokemon-datos p{margin:.18rem 0;display:flex;justify-content:space-between;border-bottom:1px solid #e2e5eb;padding:.15rem 0}
+        .btn-combatir{margin-top:1.4rem}
         .juego-ayuda{color:#999;font-size:.9rem;margin:1.4rem auto}
         .juego-mensaje{max-width:560px;margin:2rem auto;padding:1.1rem 1.4rem;border:1px solid #414141;border-radius:12px;background:#292929;color:#ddd}
-        .juego-mensaje strong{color:#fff}
-        .btn-combatir{margin-top:1.4rem}
         .flash-error{color:#ffb4ae}
-        @keyframes cartaEntrada{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+        /* ================= CARTAS (proporción real 63 x 88 mm) ================= */
+        .cartas-pack{
+            display:flex;justify-content:center;align-items:center;flex-wrap:wrap;
+            gap:clamp(1rem,3vw,2.2rem);margin:2.8rem auto 1.5rem;padding:1.5rem 0;
+            perspective:1400px
+        }
+        .carta-pack{
+            --w:clamp(190px,22vw,262px);
+            position:relative;width:var(--w);aspect-ratio:63/88;
+            container-type:inline-size;
+            transition:opacity .35s ease,filter .35s ease,scale .35s ease;
+            animation:cartaEntrada .6s cubic-bezier(.2,.8,.2,1) backwards
+        }
+        .carta-pack:nth-child(2){animation-delay:.12s}
+        .carta-pack:nth-child(3){animation-delay:.24s}
+
+        /* La carta se compone de: flota (inclinación) > giro (vuelta 3D) > caras (marco dorado) */
+        .carta-form{height:100%;margin:0}
+        .carta-form button{
+            display:block;position:relative;width:100%;height:100%;padding:0;border:0;background:none;
+            cursor:pointer;color:inherit;text-align:left;perspective:1400px;-webkit-tap-highlight-color:transparent
+        }
+        .carta-form button:focus-visible{outline:4px solid #fff;outline-offset:6px;border-radius:5cqw}
+        .carta-flota{
+            position:absolute;inset:0;transform-style:preserve-3d;
+            transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+            transition:transform .25s ease-out;will-change:transform
+        }
+        .carta-giro{
+            position:absolute;inset:0;transform-style:preserve-3d;
+            transition:transform 1.1s cubic-bezier(.5,.05,.2,1)
+        }
+        .carta-pack.girada .carta-giro{transform:rotateY(180deg)}
+
+        /* Marco dorado con esquinas redondeadas como las cartas oficiales */
+        .cara{
+            position:absolute;inset:0;border-radius:5cqw;padding:3.4cqw;
+            background:linear-gradient(135deg,#fff08b 0%,#e0b200 26%,#fff17a 52%,#c79400 78%,#f6d948 100%);
+            box-shadow:0 12px 26px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.7);
+            -webkit-backface-visibility:hidden;backface-visibility:hidden;
+            transition:box-shadow .3s ease
+        }
+        .cara.frente{transform:rotateY(180deg)}
+        .carta-elegida .cara.frente{transform:none}
+
+        .carta-reverso{
+            position:relative;width:100%;height:100%;overflow:hidden;
+            border-radius:3cqw;background:#0b2f7a;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.35)
+        }
+        .carta-reverso img{display:block;width:100%;height:100%;object-fit:cover}
+
+        /* Brillo que sigue al ratón */
+        .cara:after{
+            content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+            background:
+                radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.55),rgba(255,255,255,0) 52%),
+                linear-gradient(115deg,rgba(255,0,128,0) 30%,rgba(255,255,255,.22) 45%,rgba(0,220,255,.18) 55%,rgba(255,0,128,0) 70%);
+            mix-blend-mode:soft-light;opacity:0;transition:opacity .3s ease
+        }
+
+        /* --- Hover: la carta se eleva, flota y las demás se apagan --- */
+        .carta-pack:hover{z-index:5;animation:cartaFlota 2.4s ease-in-out infinite}
+        .carta-pack:hover .carta-flota{transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(1.09)}
+        .carta-pack:hover .cara{box-shadow:0 34px 55px rgba(0,0,0,.65),0 0 34px rgba(255,214,60,.38),inset 0 0 0 1px rgba(255,255,255,.8)}
+        .carta-pack:hover .cara:after{opacity:1}
+        .cartas-pack:has(.carta-pack:hover) .carta-pack:not(:hover){
+            opacity:.5;filter:brightness(.62) saturate(.75) blur(1.2px);scale:.93
+        }
+        .carta-pack:focus-within .cara{box-shadow:0 0 0 3px #fff,0 18px 36px rgba(0,0,0,.55)}
+
+        /* --- Al elegir: la carta se da la vuelta y las otras se apartan --- */
+        .carta-pack.girada{z-index:8;animation:cartaSube 1.1s ease-in-out forwards}
+        .carta-pack.girada .carta-flota{transform:scale(1.16)}
+        .carta-pack.girada .cara{box-shadow:0 40px 60px rgba(0,0,0,.7),0 0 46px rgba(255,214,60,.55)}
+        .cartas-pack.eligiendo .carta-pack:not(.girada){opacity:.25;filter:brightness(.5) blur(2px);scale:.88;pointer-events:none}
+        .cartas-pack.eligiendo .carta-pack{cursor:default}
+
+        @keyframes cartaFlota{
+            0%,100%{translate:0 -12px}
+            50%{translate:0 -22px}
+        }
+        @keyframes cartaSube{
+            0%{translate:0 -12px}
+            45%{translate:0 -34px}
+            100%{translate:0 -16px}
+        }
+        @keyframes cartaEntrada{
+            from{opacity:0;transform:translateY(28px) scale(.94)}
+            to{opacity:1;transform:translateY(0) scale(1)}
+        }
+
+        /* ================= CARTA REVELADA (a pantalla completa, estilo carta V) ================= */
+        .carta-elegida{display:flex;justify-content:center;margin:2.2rem auto;perspective:1400px}
+        .carta-elegida .carta-pack{--w:clamp(240px,32vw,320px)}
+        .carta-frente{
+            --c1:#4a3a8c;--c2:#b79bff;
+            position:relative;height:100%;border-radius:3cqw;overflow:hidden;text-align:left;color:#fff;
+            display:flex;flex-direction:column;
+            background:radial-gradient(circle at 50% 36%,var(--c2) 0%,var(--c1) 62%,#0c0b18 100%);
+            box-shadow:inset 0 0 0 1.4cqw rgba(8,8,18,.55)
+        }
+        .carta-frente:before{ /* trama holográfica */
+            content:"";position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.55;mix-blend-mode:overlay;
+            background:
+                repeating-linear-gradient(115deg,rgba(255,255,255,0) 0 3cqw,rgba(255,255,255,.16) 3.4cqw 4cqw),
+                radial-gradient(circle at 25% 20%,rgba(255,255,255,.5),transparent 40%)
+        }
+        .carta-arte{position:absolute;left:0;right:0;top:10%;height:62%;z-index:0;display:flex;align-items:center;justify-content:center}
+        .carta-arte:before{content:"";position:absolute;width:78%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.75),rgba(255,255,255,0) 68%);filter:blur(2cqw)}
+        .carta-arte img{position:relative;width:92%;height:100%;object-fit:contain;filter:drop-shadow(0 3cqw 3cqw rgba(0,0,0,.45))}
+        .carta-arte .sin-imagen{display:none;position:relative;font-size:34cqw}
+        .carta-arte.fallo img{display:none}
+        .carta-arte.fallo .sin-imagen{display:block}
+
+        .carta-cabecera{position:relative;z-index:3;display:flex;align-items:center;gap:2cqw;padding:4.2cqw 4cqw 0}
+        .carta-etapa{
+            font-size:2.1cqw;font-weight:900;font-style:italic;letter-spacing:.03em;text-transform:uppercase;
+            padding:.7cqw 2.6cqw .7cqw 2cqw;background:rgba(10,10,20,.78);border:1px solid rgba(255,255,255,.4);
+            clip-path:polygon(0 0,100% 0,88% 100%,0 100%)
+        }
+        .carta-nombre{
+            margin:0 auto 0 0!important;font-family:Georgia,'Times New Roman',serif;font-size:6cqw;font-weight:900;font-style:italic;
+            line-height:1.05;color:#fff!important;text-shadow:0 0 1.4cqw #000,0 .4cqw .8cqw #000,.3cqw .3cqw 0 #000;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0
+        }
+        .carta-hp{font-size:3cqw;font-weight:900;text-shadow:0 0 1cqw #000;white-space:nowrap}
+        .carta-hp b{font-size:7cqw;font-weight:900;margin-left:.6cqw;text-shadow:0 0 1.4cqw #000,.3cqw .3cqw 0 #000}
+        .tipo-icono{
+            flex:0 0 auto;width:7.2cqw;height:7.2cqw;border-radius:50%;display:grid;place-items:center;font-size:4cqw;
+            background:radial-gradient(circle at 35% 30%,#fff,var(--c2) 55%,var(--c1));border:.5cqw solid #fff;box-shadow:0 .5cqw 1.2cqw rgba(0,0,0,.5);color:#14141f
+        }
+
+        .carta-espacio{flex:1;min-height:0}
+        .carta-ataques{position:relative;z-index:3;padding:10cqw 4cqw 2cqw;background:linear-gradient(to bottom,rgba(8,8,20,0),rgba(8,8,20,.78) 38%,rgba(8,8,20,.9))}
+        .carta-ataque{display:flex;align-items:center;gap:2cqw;padding:1.3cqw 0}
+        .carta-ataque + .carta-ataque{border-top:1px solid rgba(255,255,255,.18)}
+        .energias{display:flex;gap:.8cqw;min-width:15cqw}
+        .energia{width:5.2cqw;height:5.2cqw;border-radius:50%;display:grid;place-items:center;font-size:3cqw;background:radial-gradient(circle at 35% 30%,#fff,var(--c2) 60%,var(--c1));border:.4cqw solid #fff;color:#14141f}
+        .energia.neutra{background:radial-gradient(circle at 35% 30%,#fff,#cfd2dc 60%,#8a8fa0)}
+        .carta-ataque span.nombre{flex:1;font-size:6cqw;font-weight:800;text-shadow:0 .3cqw .8cqw #000}
+        .carta-ataque b{font-size:7cqw;font-weight:900;text-shadow:0 .3cqw .8cqw #000}
+
+        .carta-barra{position:relative;z-index:3;display:grid;grid-template-columns:repeat(3,1fr);gap:1.4cqw;padding:0 4cqw 1.6cqw;background:rgba(8,8,20,.9)}
+        .carta-barra div{font-size:2.5cqw;font-weight:800;text-transform:uppercase;letter-spacing:.02em;padding:1.1cqw 1.6cqw;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:1.2cqw;display:flex;justify-content:space-between;align-items:center;gap:1cqw}
+        .carta-barra div b{font-size:3.3cqw}
+        .carta-pie{position:relative;z-index:3;display:flex;justify-content:space-between;gap:2cqw;padding:0 4.4cqw 3cqw;font-size:2.3cqw;font-style:italic;color:#d8d8e6;background:rgba(8,8,20,.9)}
+
+
+        /* ---- Menú de navegación ---- */
+        nav .marca{margin-right:auto}
+        .nav-links{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
+        .nav-link,.nav-usuario{
+            font-family:'Fredoka','Trebuchet MS','Segoe UI',Arial,sans-serif;font-size:1.02rem;font-weight:600;
+            letter-spacing:.07em;text-transform:uppercase
+        }
+        nav a.nav-link{
+            position:relative;padding:.5rem 1rem;border-radius:999px;color:#e9ecf5;text-decoration:none;
+            transition:color .2s,background .2s,transform .2s,box-shadow .2s
+        }
+        nav a.nav-link:after{
+            content:"";position:absolute;left:1rem;right:1rem;bottom:.22rem;height:3px;border-radius:3px;
+            background:linear-gradient(90deg,#ffd52a,#ff4f8b);transform:scaleX(0);transform-origin:left;transition:transform .25s ease
+        }
+        nav a.nav-link:hover{color:#fff;text-decoration:none;background:rgba(255,255,255,.07);transform:translateY(-2px)}
+        nav a.nav-link:hover:after,nav a.nav-link.activo:after{transform:scaleX(1)}
+        nav a.nav-link.activo{color:#ffd52a;text-shadow:0 0 14px rgba(255,213,42,.45)}
+        .nav-usuario{
+            margin:0 .4rem 0 .9rem;padding:.38rem .95rem .38rem .45rem;border-radius:999px;color:#fff;
+            background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.18);
+            display:inline-flex;align-items:center;gap:.5rem;text-transform:none;letter-spacing:.03em
+        }
+        .nav-usuario:before{
+            content:"";width:1.35rem;height:1.35rem;border-radius:50%;flex:0 0 auto;
+            background:linear-gradient(to bottom,#e8261d 0 44%,#14141c 44% 56%,#fff 56% 100%);border:2px solid #14141c;box-shadow:0 0 0 1.5px #fff
+        }
+        nav a.nav-salir{border:1.5px solid rgba(255,213,42,.7);color:#ffd52a}
+        nav a.nav-salir:after{display:none}
+        nav a.nav-salir:hover{background:#ffd52a;color:#1a1a22;box-shadow:0 6px 16px rgba(255,213,42,.28)}
+
+        /* ---- Texto legible sobre superficies claras (Pokédex, combate, historial) ---- */
+        .card,.panel,table,th,td{color:var(--texto)}
+        .card h1,.card h2,.card h3,.panel h1,.panel h2,.panel h3{color:var(--texto)}
+        .card.pendiente h3{color:#6b7280}
+        .card .gris,.panel .gris,table .gris{color:var(--gris)}
+        main > .gris,main > p.gris,.centro.gris{color:#aeb4c2}
+        .pokedex .card .num{color:var(--gris)}
+        .card-btn,.card-btn *{color:inherit}
+        table th{color:#2b3140}
+        table td strong{color:var(--texto)}
+        table a{color:var(--azul)}
+        .alert{color:#1f2430}
+        .alert.error{color:#8a1f17}.alert.success{color:#116a3c}
+        .alert a{color:var(--azul)}
         @media(max-width:650px){
             main{padding-top:1.2rem}
-            .cartas-pack{gap:1rem}
-            .carta-pack{width:min(42vw,210px);min-height:300px}
-            .carta-interior{min-height:286px}
-            .reverso-pokeball{width:86px;height:86px}
-            .reverso-pokeball:after{width:24px;height:24px}
-        }
-
-
-        .cartas-pack[hidden]{display:none}
-        .cartas-pack{isolation:isolate;perspective:1100px}
-        .cartas-pack .carta-pack{
-            z-index:1;transform-origin:center center;
-            transition:transform .24s cubic-bezier(.2,.8,.2,1),filter .24s,opacity .24s,box-shadow .24s;
-            will-change:transform;
-        }
-        /* Al enfocar una carta, las demás bajan visualmente para destacar la activa. */
-        .cartas-pack:has(.carta-pack:hover) .carta-pack:not(:hover),
-        .cartas-pack:has(.carta-pack:focus-within) .carta-pack:not(:focus-within){
-            transform:scale(.94);filter:brightness(.58) saturate(.72);opacity:.72
-        }
-        .cartas-pack .carta-pack:hover,
-        .cartas-pack .carta-pack:focus-within{
-            z-index:5;transform:translateY(-14px) scale(1.09) rotate(0deg);
-            filter:brightness(1.12) saturate(1.15);
-            box-shadow:0 24px 45px rgba(0,0,0,.62),0 0 0 2px rgba(255,226,91,.55),0 0 28px rgba(255,207,44,.22)
-        }
-        .cartas-pack .carta-form button:disabled{cursor:wait}
-        .cartas-pack .carta-form button:disabled:hover{transform:none;filter:none}
-        .btn-pack:disabled{opacity:.75;cursor:wait;transform:none}
-        .cartas-pack.barajando .carta-pack{
-            animation:barajarReal 1.25s cubic-bezier(.25,.75,.25,1) both;
-            animation-delay:var(--shuffle-delay,0ms)
-        }
-        .cartas-pack.barajando .carta-pack:hover{transform:none;filter:none}
-        @keyframes barajarReal{
-            0%{transform:translateX(0) translateY(0) rotate(0) scale(1)}
-            16%{transform:translateX(var(--shuffle-x)) translateY(-34px) rotate(var(--shuffle-rotate)) scale(1.05)}
-            34%{transform:translateX(calc(var(--shuffle-x) * -1)) translateY(15px) rotate(calc(var(--shuffle-rotate) * -1)) scale(.97)}
-            52%{transform:translateX(var(--shuffle-x)) translateY(-20px) rotate(var(--shuffle-rotate)) scale(1.03)}
-            70%{transform:translateX(calc(var(--shuffle-x) * -.45)) translateY(8px) rotate(calc(var(--shuffle-rotate) * -.5)) scale(1)}
-            86%{transform:translateX(8px) translateY(-5px) rotate(2deg) scale(1.015)}
-            100%{transform:translateX(0) translateY(0) rotate(0) scale(1)}
-        }
-        @media(hover:none){
-            .cartas-pack:has(.carta-pack:hover) .carta-pack:not(:hover){transform:none;filter:none;opacity:1}
-            .cartas-pack .carta-pack:hover{transform:none}
+            .carta-pack{--w:min(42vw,200px)}
         }
         @media(prefers-reduced-motion:reduce){
-            .cartas-pack.barajando .carta-pack{animation:none}
-            .cartas-pack .carta-pack{transition:none}
+            .carta-pack,.carta-pack:hover,.carta-flota,.carta-giro{animation:none!important;transition:none!important}
         }
-
     </style>
 </head>
 <body>
 <nav>
-    <a class="marca" href="{{ path('app_main') }}">⚡ Cartas Pokémon</a>
+    <a class="marca" href="{{ path('app_main') }}" aria-label="Cartas Pokémon, inicio">
+        <svg class="logo-cartas logo-wordmark" viewBox="0 0 270 76" role="img" aria-label="Cartas Pokémon">
+            <defs>
+                <linearGradient id="pokeYellow" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#fff36a"/><stop offset=".55" stop-color="#ffca20"/><stop offset="1" stop-color="#f3a900"/>
+                </linearGradient>
+            </defs>
+            <text x="136" y="18" text-anchor="middle" font-size="10" font-weight="900" letter-spacing="3" fill="#fff">JUEGO DE CARTAS</text>
+            <text x="136" y="59" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="43" font-weight="1000" font-style="italic" fill="url(#pokeYellow)" stroke="#174b9b" stroke-width="8" stroke-linejoin="round" paint-order="stroke">Pokémon</text>
+            <text x="136" y="59" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="43" font-weight="1000" font-style="italic" fill="url(#pokeYellow)" stroke="#fff" stroke-width="1.3" stroke-linejoin="round" paint-order="stroke">Pokémon</text>
+        </svg>
+    </a>
+    {% set ruta = app.request.attributes.get('_route') %}
+    <div class="nav-links">
     {% if app.user %}
-        <a href="{{ path('app_juego') }}">Jugar</a>
-        <a href="{{ path('app_pokedex') }}">Pokédex</a>
-        <a href="{{ path('app_historial') }}">Historial</a>
-        <span>{{ app.user.nombreUsuario }}</span>
-        <a href="{{ path('app_logout') }}">Salir</a>
+        <a class="nav-link{{ ruta == 'app_juego' or ruta == 'app_combate' ? ' activo' : '' }}" href="{{ path('app_juego') }}">Jugar</a>
+        <a class="nav-link{{ ruta == 'app_pokedex' ? ' activo' : '' }}" href="{{ path('app_pokedex') }}">Pokédex</a>
+        <a class="nav-link{{ ruta == 'app_historial' ? ' activo' : '' }}" href="{{ path('app_historial') }}">Historial</a>
+        <span class="nav-usuario">{{ app.user.nombreUsuario }}</span>
+        <a class="nav-link nav-salir" href="{{ path('app_logout') }}">Salir</a>
     {% else %}
-        <a href="{{ path('app_login') }}">Entrar</a>
-        <a href="{{ path('app_registro') }}">Registrarse</a>
+        <a class="nav-link{{ ruta == 'app_login' ? ' activo' : '' }}" href="{{ path('app_login') }}">Entrar</a>
+        <a class="nav-link nav-salir" href="{{ path('app_registro') }}">Registrarse</a>
     {% endif %}
+    </div>
 </nav>
 <main>
     {% for tipo, mensajes in app.flashes %}

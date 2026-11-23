@@ -12,83 +12,73 @@
         </div>
     {% elseif ronda.pokemonElegido is null %}
         <h1>¡Prepárate para elegir!</h1>
-        <p class="juego-subtitulo" id="instruccion-cartas">Pulsa empezar para barajar las tres cartas. Después podrás elegir la que quieras.</p>
+        <p class="juego-subtitulo">Tus tres cartas misteriosas están boca abajo: elige una para descubrir tu Pokémon.</p>
 
-        <div class="pack-actions">
-            <button class="btn-pack" id="empezar-barajar" type="button">Empezar</button>
-        </div>
-
-        <div class="cartas-pack" id="zona-cartas" hidden>
+        <div class="cartas-pack" id="zona-cartas">
             {% for carta in ronda.cartas|sort((a, b) => a.posicion <=> b.posicion) %}
                 <article class="carta-pack">
                     <form class="carta-form" method="post" action="{{ path('app_juego_elegir', {posicion: carta.posicion}) }}">
                         <input type="hidden" name="_token" value="{{ csrf_token('elegir' ~ carta.posicion) }}">
-                        <button type="submit" disabled aria-label="Elegir carta {{ carta.posicion }}">
-                            <div class="carta-interior">
-                                <span class="carta-numero">CARD {{ '%02d'|format(carta.posicion) }}</span>
-                                <div class="reverso-pokeball"></div>
-                                <span class="reverso-titulo">POKÉMON</span>
+                        <button type="submit" aria-label="Elegir carta {{ loop.index }}">
+                            <div class="carta-flota">
+                                <div class="carta-giro">
+                                    <div class="cara reverso" aria-hidden="true">
+                                        <div class="carta-reverso">
+                                            <img src="{{ app.request.basePath }}/images/reverso-carta.svg" alt="" loading="eager">
+                                        </div>
+                                    </div>
+                                    <div class="cara frente">
+                                        {% include 'gestion/_carta_frente.html.twig' with {elegido: carta.pokemon} %}
+                                    </div>
+                                </div>
                             </div>
                         </button>
                     </form>
                 </article>
             {% endfor %}
         </div>
-        <p class="juego-ayuda" id="ayuda-cartas">Las cartas aparecerán aquí cuando pulses Empezar.</p>
+        <p class="juego-ayuda" id="ayuda-cartas">Pasa el ratón por encima para destacar una carta y púlsala para darle la vuelta.</p>
 
         <script>
             (() => {
-                const startButton = document.getElementById('empezar-barajar');
-                const cardZone = document.getElementById('zona-cartas');
-                const instruction = document.getElementById('instruccion-cartas');
-                const help = document.getElementById('ayuda-cartas');
+                const zona = document.getElementById('zona-cartas');
+                const ayuda = document.getElementById('ayuda-cartas');
+                const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                let girando = false;
 
-                if (!startButton || !cardZone) return;
+                zona.querySelectorAll('.carta-pack').forEach(carta => {
+                    const flota = carta.querySelector('.carta-flota');
+                    const form = carta.querySelector('form');
 
-                startButton.addEventListener('click', () => {
-                    if (startButton.disabled) return;
-
-                    startButton.disabled = true;
-                    startButton.textContent = 'Barajando...';
-                    cardZone.hidden = false;
-
-                    // Reordena las cartas de forma aleatoria sin cambiar su posición
-                    // asociada en el formulario ni la validación del servidor.
-                    const cards = Array.from(cardZone.children);
-                    for (let i = cards.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [cards[i], cards[j]] = [cards[j], cards[i]];
-                    }
-                    cards.forEach((card, index) => {
-                        cardZone.appendChild(card);
-                        // Las cartas cruzan visualmente sus posiciones, como un barajado real.
-                        const directions = [-115, 0, 115];
-                        const rotations = [-13, 9, -11];
-                        card.style.setProperty('--shuffle-x', directions[index] + 'px');
-                        card.style.setProperty('--shuffle-rotate', rotations[index] + 'deg');
-                        card.style.setProperty('--shuffle-delay', (index * 110) + 'ms');
-                        const button = card.querySelector('button[type="submit"]');
-                        if (button) button.disabled = true;
+                    // Inclinación 3D y brillo que siguen al ratón.
+                    carta.addEventListener('mousemove', e => {
+                        if (girando) return;
+                        const r = carta.getBoundingClientRect();
+                        const x = (e.clientX - r.left) / r.width;
+                        const y = (e.clientY - r.top) / r.height;
+                        flota.style.setProperty('--ry', ((x - .5) * 16) + 'deg');
+                        flota.style.setProperty('--rx', ((.5 - y) * 16) + 'deg');
+                        flota.style.setProperty('--mx', (x * 100) + '%');
+                        flota.style.setProperty('--my', (y * 100) + '%');
+                    });
+                    carta.addEventListener('mouseleave', () => {
+                        if (girando) return;
+                        flota.style.setProperty('--rx', '0deg');
+                        flota.style.setProperty('--ry', '0deg');
                     });
 
-                    cardZone.classList.remove('barajando');
-                    void cardZone.offsetWidth;
-                    cardZone.classList.add('barajando');
-
-                    instruction.textContent = '¡Cartas barajadas! Elige una para descubrir tu Pokémon.';
-                    help.textContent = 'Selecciona una de las tres cartas. Tu elección será la que utilices en el combate.';
-
-                    window.setTimeout(() => {
-                        cardZone.classList.remove('barajando');
-                        cards.forEach(card => {
-                            card.style.removeProperty('--shuffle-x');
-                            card.style.removeProperty('--shuffle-rotate');
-                            card.style.removeProperty('--shuffle-delay');
-                            const button = card.querySelector('button[type="submit"]');
-                            if (button) button.disabled = false;
-                        });
-                        startButton.textContent = '¡Cartas listas!';
-                    }, 1150);
+                    // Al pulsar: la carta se da la vuelta y, al terminar, se guarda la elección.
+                    form.addEventListener('submit', e => {
+                        e.preventDefault();
+                        if (girando) return;
+                        girando = true;
+                        flota.style.setProperty('--rx', '0deg');
+                        flota.style.setProperty('--ry', '0deg');
+                        zona.classList.add('eligiendo');
+                        carta.classList.add('girada');
+                        if (ayuda) ayuda.textContent = '¡Descubriendo tu Pokémon…!';
+                        window.setTimeout(() => form.submit(), reducido ? 150 : 1500);
+                    });
                 });
             })();
         </script>
@@ -98,19 +88,10 @@
         <p class="juego-subtitulo">Este es tu Pokémon para el próximo combate.</p>
 
         <div class="carta-elegida">
-            <article class="carta-pack">
-                <div class="carta-interior" style="background:linear-gradient(160deg,#e9f1fb,#b8cde9);color:#15233a">
-                    <span class="carta-numero" style="color:#263b5a">TU CARTA</span>
-                    <h2 class="pokemon-nombre">{{ elegido.nombre }}</h2>
-                    <img class="pokemon-imagen" src="{{ elegido.imagenUrl }}" alt="{{ elegido.nombre }}">
-                    <div class="pokemon-tipos">
-                        {% for tipo in elegido.tipos %}
-                            <span class="tipo">{{ tipo.nombre }}</span>
-                        {% endfor %}
-                    </div>
-                    <div class="pokemon-datos">
-                        <p><span>HP</span><strong>{{ elegido.hp }}</strong></p>
-                        <p><span>Ataque</span><strong>{{ elegido.ataque }}</strong></p>
+            <article class="carta-pack" id="carta-revelada">
+                <div class="carta-flota">
+                    <div class="cara frente">
+                        {% include 'gestion/_carta_frente.html.twig' with {elegido: elegido} %}
                     </div>
                 </div>
             </article>
@@ -123,6 +104,26 @@
             </form>
         </div>
         <p class="juego-ayuda">Tu Pokémon ya está preparado. ¡Veamos quién gana!</p>
+
+        <script>
+            (() => {
+                const carta = document.getElementById('carta-revelada');
+                const flota = carta && carta.querySelector('.carta-flota');
+                if (!flota) return;
+                carta.addEventListener('mousemove', e => {
+                    const r = carta.getBoundingClientRect();
+                    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+                    flota.style.setProperty('--ry', ((x - .5) * 14) + 'deg');
+                    flota.style.setProperty('--rx', ((.5 - y) * 14) + 'deg');
+                    flota.style.setProperty('--mx', (x * 100) + '%');
+                    flota.style.setProperty('--my', (y * 100) + '%');
+                });
+                carta.addEventListener('mouseleave', () => {
+                    flota.style.setProperty('--rx', '0deg');
+                    flota.style.setProperty('--ry', '0deg');
+                });
+            })();
+        </script>
     {% endif %}
 </section>
 {% endblock %}
